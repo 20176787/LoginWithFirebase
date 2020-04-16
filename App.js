@@ -3,6 +3,7 @@ import auth from '@react-native-firebase/auth';
 import LoginAndRegisterContainer from './src/router/LoginAndRegisterContainer';
 import {NavigationContainer} from '@react-navigation/native';
 import RootContainer from './src/router/RootContainer';
+import InformationContainer from './src/router/InformationContainer';
 function App() {
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
@@ -29,7 +30,7 @@ function App() {
   }
   return (
     <NavigationContainer >
-      <RootContainer />
+      <InformationContainer />
     </NavigationContainer>
   );
 }
