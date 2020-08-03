@@ -9,6 +9,8 @@ import TodoScreen from '../page/TODO/TodoScreen';
 import {createStackNavigator} from '@react-navigation/stack';
 import RootContainer from './RootContainer';
 import DrawerContent from './Content/DrawerContent';
+import TodoContainer from './TodoContainer';
+import HomeCovid19Container from './Covid19Container/HomeCovid19Container';
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
@@ -27,10 +29,10 @@ export default function InformationContainer() {
       }}
       drawerContent={(props) => <DrawerContent {...props} />}>
       <Drawer.Screen name={'Information'} component={RootContainer} />
-      <Drawer.Screen name={'Activation'} component={ActivationScreen} />
+      <Drawer.Screen name={'Activation'} component={HomeCovid19Container} />
       <Drawer.Screen name={'Education'} component={EducationScreen} />
       <Drawer.Screen name={'Quotes'} component={QuotesFavouriteScreen} />
-      <Drawer.Screen name={'Activity'} component={TodoScreen} />
+      <Drawer.Screen name={'Activity'} component={TodoContainer} />
     </Drawer.Navigator>
   );
 }

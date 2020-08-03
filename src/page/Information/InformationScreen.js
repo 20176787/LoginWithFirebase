@@ -9,31 +9,30 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import {Icon} from 'react-native-elements';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import SocialIconRow from '../../common/Elements/Information/SocialIconRow';
+import InformationDetail from '../../common/Elements/Information/InformationDetail';
 const dimensions = Dimensions.get('window');
 const coverHeight = Math.round((dimensions.width * 7) / 10);
 const coverWidth = dimensions.width;
 export default function InformationScreen() {
-  const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [facebook, setFacebook] = useState('');
-  const [github, setGithub] = useState('');
-  const onPressPhone = (phoneNumber) => {
-    Linking.openURL(`tel:${phoneNumber}`).catch((err) => console.log(err));
-  };
-  const onPressEmail = (email) => {
-    Linking.openURL(`mailto:${email}`).catch((err) => console.log(err));
-  };
-  const onPressFacebook = (facebook) => {
-    Linking.openURL(`fb://profile/${facebook}`).catch((err) =>
-      console.log(err),
-    );
-  };
-  const onPressGitHub = (github) => {
-    Linking.openURL(`http://github.com/${github}`).catch((err) =>
-      console.log(err),
-    );
-  };
+  const ref = firestore()
+    .collection('info')
+    .where('authID', '==', auth().currentUser.uid);
+  const [info, setInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    return ref.onSnapshot((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        const {authID, information, nomalInfo} = doc.data();
+        setInfo({authID, information, nomalInfo});
+      });
+    });
+  }, []);
+  if (info == null) {
+    return null;
+  }
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -62,63 +61,16 @@ export default function InformationScreen() {
               }}
             />
           </TouchableOpacity>
-          <Text style={styles.name}>Le Ngoc Huy</Text>
-          <Text style={styles.nickName}>(Captain Beemo)</Text>
-          <Text style={styles.description}>
-            "If you can see my story , you are special."
-          </Text>
-
-          <View style={styles.socialRow}>
-            <View>
-              <Icon
-                size={40}
-                type="entypo"
-                color="#3B5A98"
-                name="facebook-with-circle"
-                onPress={() => {
-                  setFacebook('huy1407');
-                  onPressFacebook(facebook);
-                }}
-              />
-            </View>
-            <View style={styles.socialIcon}>
-              <Icon
-                size={40}
-                name="phone"
-                type="font-awesome"
-                color="#517fa4"
-                onPress={() => {
-                  setPhoneNumber('0366717837');
-                  onPressPhone(phoneNumber);
-                }}
-              />
-            </View>
-            <View>
-              <Icon
-                size={40}
-                type="fontisto"
-                color="#DD4C39"
-                name="email"
-                onPress={() => {
-                  setEmail('huy14071999@gmail.com');
-                  onPressEmail(email);
-                }}
-              />
-            </View>
-            <View>
-              <Icon
-                size={40}
-                type="fontisto"
-                color="#DD4C39"
-                name="email"
-                onPress={() => {
-                  setGithub('20176787');
-                  onPressGitHub(github);
-                }}
-              />
-            </View>
+          <View style={{paddingTop: 50}}>
+            <Text style={styles.name}>{info.nomalInfo.name}</Text>
+            <Text style={styles.nickName}>({info.nomalInfo.nickName})</Text>
+            <Text style={styles.description}>
+              "{info.nomalInfo.description}"
+            </Text>
           </View>
+          <SocialIconRow />
         </View>
+        <InformationDetail info={info} />
       </ScrollView>
     </View>
   );
@@ -129,11 +81,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   imageAvatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
     borderWidth: 5,
     borderColor: '#ebeaea',
+    overflow: 'hidden',
   },
   box1: {
     flexDirection: 'column',
@@ -156,7 +109,8 @@ const styles = StyleSheet.create({
     height: 100,
     position: 'absolute',
     top: 0,
-    left: '50%',
+    justifyContent: 'center',
+    left: '37%',
     marginLeft: -50,
     marginTop: -55,
   },
@@ -169,14 +123,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'rgba(171,174,148,0.42)',
     fontSize: 20,
-  },
-  socialIcon: {
-    marginLeft: 14,
-    marginRight: 14,
-  },
-  socialRow: {
-    flexDirection: 'row',
-    paddingTop: 10,
   },
   page: {
     flex: 1,

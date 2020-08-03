@@ -8,23 +8,35 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
+import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import addTodo from '../../store/Action/addTodo';
 import Todo from './Todo';
-const ref = firestore().collection('todos');
+import TimePickerElement from '../../common/Elements/TimePickerElement';
+
 export default function TodoScreen() {
+  const ref = firestore()
+      .collection('todos')
+      .orderBy('createAt', 'desc')
+      .where('authID', '==', auth().currentUser.uid);
+
   const [todo, setTodo] = useState('');
+  const [time, setTime] = useState('');
   const [loading, setLoading] = useState(true);
   const [todos, setTodos] = useState([]);
+
   useEffect(() => {
     return ref.onSnapshot((querySnapshot) => {
       const list = [];
       querySnapshot.forEach((doc) => {
-        const {title, complete} = doc.data();
+        const {title, complete, createAt, deadLine} = doc.data();
         list.push({
+
           id: doc.id,
           title,
           complete,
+          createAt,
+          deadLine,
         });
       });
       setTodos(list);
@@ -41,17 +53,21 @@ export default function TodoScreen() {
   return (
     <View>
       <Text style={styles.logo}>List Activity</Text>
-      <TextInput
-        style={{backgroundColor: '#fff'}}
-        placeholder={'insert your activity'}
-        value={todo}
-        onChangeText={setTodo}
-      />
+      <View style={{flexDirection: 'row'}}>
+        <TextInput
+          inlineImageLeft="search_icon"
+          style={{backgroundColor: '#fff', width: 310}}
+          placeholder={'insert your activity'}
+          value={todo}
+          onChangeText={setTodo}
+        />
+        <TimePickerElement time={time} setTime={setTime} />
+      </View>
       <TouchableOpacity
         style={styles.loginButton}
         onPress={() => {
-          if (todo != '') {
-            addTodo(todo);
+          if (todo != '' && time != '') {
+            addTodo(todo, time);
           }
         }}>
         <Text style={styles.inputText}>Add Activity</Text>
